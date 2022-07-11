@@ -8,8 +8,6 @@ This repository consists of three sections:
 2. Dlib Landmark Predictor for Face Emoji prediction
 
 
-# Overview :
-This article was published as a part of the Data Science Blogathon.
 
 ##### Overview for Deep Learning for Emojis - 
 Nowadays, we are using several emojis or avatars to show our moods or feelings. They act as nonverbal cues of humans. They become the crucial part of emotion recognition, online chatting, brand emotion, product review, and a lot more. Data science research towards emoji-driven storytelling is increasing repeatedly.
