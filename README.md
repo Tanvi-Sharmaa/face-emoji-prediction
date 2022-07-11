@@ -3,7 +3,7 @@ CNN based and Dlib Face Landmark Predictor for Face Emoji Prediction
 
 ## Introduction:
 
-This repository consists of three sections: 
+This repository consists of two sections: 
 1. CNN based Facial Emoji Prediction 
 2. Dlib Landmark Predictor for Face Emoji prediction
 
