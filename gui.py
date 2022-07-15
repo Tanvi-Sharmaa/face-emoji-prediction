@@ -45,7 +45,7 @@ show_text = [0]
 global frame_number
 
 def show_subject():
-    cap1 = cv2.VideoCapture(r'C:/Users/omkar/Downloads/archive/V5.mp4')
+    cap1 = cv2.VideoCapture(r'C:/Users/tanvi/Downloads/archive/V5.mp4')
     #cap1 = cv2.VideoCapture(0)
     if not cap1.isOpened():
         print("not open")
@@ -57,7 +57,7 @@ def show_subject():
     cap1.set(1, frame_number)
     flag1, frame1 = cap1.read()
     frame1 = cv2.resize(frame1, (600, 500))
-    bounding_box = cv2.CascadeClassifier('C:/Users/omkar/Anaconda3/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml')
+    bounding_box = cv2.CascadeClassifier('C:/Users/tanvi/Anaconda3/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml')
     gray_frame = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
     num_faces = bounding_box.detectMultiScale(gray_frame,scaleFactor=1.3, minNeighbors=5)
 
