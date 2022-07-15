@@ -1,5 +1,3 @@
-import tkinter as tk
-from tkinter import *
 import cv2
 from PIL import Image, ImageTk
 import os
@@ -38,24 +36,23 @@ emotion_dict = {0: "   Angry   ", 1: "Disgusted", 2: "  Fearful  ", 3: "   Happy
 
 emoji_dist={0:"emojis/angry.png",2:"emojis/disgusted.png",2:"emojis/fearful.png",3:"emojis/happy.png",4:"emojis/neutral.png",5:"emojis/sad.png",6:"emojis/surpriced.png"}
 
-global last_frame1
-last_frame1 = np.zeros((480, 640, 3), dtype=np.uint8)
-global cap1
-show_text = [0]
-global frame_number
+video_capture = cv2.VideoCapture(0)
 
-def show_subject():
-    cap1 = cv2.VideoCapture(r'C:/Users/tanvi/Downloads/archive/V5.mp4')
-    #cap1 = cv2.VideoCapture(0)
-    if not cap1.isOpened():
-        print("not open")
-    global frame_number
-    length = int(cap1.get(cv2.CAP_PROP_FRAME_COUNT))
-    frame_number +=1
-    if frame_number >=length:
-        exit()
-    cap1.set(1, frame_number)
-    flag1, frame1 = cap1.read()
+# Initialize some variables
+face_locations = []
+face_encodings = []
+face_names = []
+process_this_frame = True
+
+cnn=tf.keras.models.load_model('<ADDRESS_TO_THE_MODEL_FILE>')
+
+emotions = {0: 'Angry', 1: 'Disgust', 2: 'Fear', 3: 'Happy', 4: 'Sad', 5: 'Surprise', 6: 'Neutral'}
+
+while True:
+    # Grab a single frame of video
+    ret, frame = video_capture.read()
+
+    # Resize frame of video to 1/4 size for faster face recognition processing
     frame1 = cv2.resize(frame1, (600, 500))
     bounding_box = cv2.CascadeClassifier('C:/Users/tanvi/Anaconda3/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml')
     gray_frame = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
@@ -68,58 +65,35 @@ def show_subject():
         prediction = emotion_model.predict(cropped_img)
         
         maxindex = int(np.argmax(prediction))
-        cv2.putText(frame1, emotion_dict[maxindex], (x+20, y-60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        show_text[0]=maxindex
-    if flag1 is None:
-        print ("Major error!")
-    elif flag1:
-        global last_frame1
-        last_frame1 = frame1.copy()
-        pic = cv2.cvtColor(last_frame1, cv2.COLOR_BGR2RGB)     
-        img = Image.fromarray(pic)
-        imgtk = ImageTk.PhotoImage(image=img)
-        lmain.imgtk = imgtk
-        lmain.configure(image=imgtk)
-        root.update()
-        lmain.after(10, show_subject)
+
+        emoji_path = emoji_dist[maxindex]
+
+        emoji = cv2.imread(emoji_path)
+        emoji = cv2.resize(emoji, (abs(right-left), abs(top -bottom)))
+
+        # Masking Emoji's Images
+
+        lWhite=np.array([220,220,220])
+        uWhite=np.array([255,255,255])
+        mask=cv2.inRange(emoji, lWhite,uWhite)
+
+        crop = frame[top:bottom,left:right, :]
+
+        pop = cv2.bitwise_and(crop,crop,mask=mask)
+        mask =cv2.bitwise_not(mask)
+        pop2 = cv2.bitwise_and(emoji,emoji,mask=mask)
+        emoji = pop + pop2
+
+
+        frame[top:bottom,left:right, :] = emoji  #overlapping emoji image to camera feed
+
+    # Display the resulting image
+    cv2.imshow('Video', frame)
+    
+    # Hit 'q' on the keyboard to quit!
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        exit()
-        
-        
-def show_avatar():
-    frame2=cv2.imread(emoji_dist[show_text[0]])
-    pic2=cv2.cvtColor(frame2,cv2.COLOR_BGR2RGB)
-    img2=Image.fromarray(frame2)
-    imgtk2=ImageTk.PhotoImage(image=img2)
-    lmain2.imgtk2=imgtk2
-    lmain3.configure(text=emotion_dict[show_text[0]],font=('arial',45,'bold'))
-    
-    lmain2.configure(image=imgtk2)
-    root.update()
-    lmain2.after(10, show_avatar)
+        break
 
-
-
-if __name__ == '__main__':
-    frame_number = 0
-    root=tk.Tk()   
-    img = ImageTk.PhotoImage(Image.open("logo.png")) 
-    lmain = tk.Label(master = root, padx=50, bd=10)
-    lmain2 = tk.Label(master = root, bd=10)
-    lmain3 = tk.Label(master = root, bd=10, fg="#CDCDCD", bg='black')
-    lmain.pack(side=LEFT)
-    lmain.place(x=50, y=250)
-    lmain3.pack()
-    lmain3.place(x=960, y=250)
-    lmain2.pack(side=RIGHT)
-    lmain2.place(x=900, y=350)
-    
-    root.title("Data_602_Final_Project")
-    root.geometry("1400x900+100+10")
-    root['bg'] = 'black'
-    exitbutton = Button(root, text='Quit', fg="red", command=root.destroy, font=('arial', 25,'bold')).pack(side=BOTTOM)
-    threading.Thread(target=show_subject).start()
-    threading.Thread(target=show_avatar).start()
-    root.mainloop()
-
-
+# Release handle to the webcam
+video_capture.release()
+cv2.destroyAllWindows()
