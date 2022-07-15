@@ -37,8 +37,6 @@ emoji_dist={0:"emojis/angry.png",2:"emojis/disgusted.png",2:"emojis/fearful.png"
 
 video_capture = cv2.VideoCapture(0)
 
-emotions = {0: 'Angry', 1: 'Disgust', 2: 'Fear', 3: 'Happy', 4: 'Sad', 5: 'Surprise', 6: 'Neutral'}
-
 while True:
     # Grab a single frame of video
     ret, frame = video_capture.read()
